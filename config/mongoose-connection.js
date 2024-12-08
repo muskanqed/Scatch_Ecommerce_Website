@@ -1,18 +1,20 @@
-const mongoose = require("mongoose");
 require('dotenv').config();
-
+const mongoose = require("mongoose");
+const dbgr = require("debug")("development:mongoose");
 const url = (process.env.MONGO_URL);
 
-async function dbconnect() {
+async function connectToDb() {
     await mongoose.connect(url, {
         useNewUrlParser: true
     })
         .then(() => {
-            console.log("Connection established successful");
+            dbgr("Database connected successfully");
         })
-        .catch((error => {
-            console.log("Connection failed", error);
-        }))
+        .catch((error) => {
+            dbgr(error);
+        })
 }
 
-module.exports = dbconnect;
+module.exports = {
+    connectToDb,
+};
