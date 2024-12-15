@@ -12,7 +12,6 @@ const userModel = new Schema({
         type: Array,
         default: []
     },
-    isAdmin: Boolean,
     phoneNumber: Number,
     picture: String
 });
