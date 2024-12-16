@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const userRoute = express.Router();
 const userModel = require("../models/user-model");
 const zod = require('zod');
@@ -10,7 +11,7 @@ const user = zod.object({
 })
 
 userRoute.get('/', async (req, res) => {
-    const users = await userModel.find();
+    const users = await userModel.find().select("fullname");
 
     res.send(users);
 });
@@ -34,10 +35,18 @@ userRoute.post('/signup', async (req, res) => {
             res.status(409).send("User already exits please signin")
         }
         else {
+
+            hashedPassword = await bcrypt.hash(password, 5);
+
             await userModel.create({
                 email,
                 fullname,
-                password
+                password: hashedPassword
+
+            })
+
+            res.status(200).json({
+                message: "User created successfully"
             })
         }
     } catch (err) {

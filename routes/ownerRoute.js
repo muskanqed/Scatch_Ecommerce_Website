@@ -2,6 +2,7 @@ const express = require("express");
 const ownerRoute = express.Router();
 require('dotenv').config();
 const zod = require('zod');
+const bcrypt = require('bcrypt');
 const ownerModel = require("../models/owner-model");
 
 const owner = zod.object({
@@ -37,10 +38,11 @@ if (process.env.NODE_ENV === "development") {
                 res.status(504).send("Owner already exits you cannot create the owner");
             }
             else {
+                const hashedPassword = await bcrypt.hash(password,5);
                 const owners = await ownerModel.create({
                     email,
                     fullname,
-                    password
+                    password: hashedPassword
                 })
 
                 res.status(200).send("owner created");
