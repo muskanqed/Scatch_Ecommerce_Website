@@ -3,6 +3,9 @@ const ownerRoute = express.Router();
 require('dotenv').config();
 const zod = require('zod');
 const bcrypt = require('bcrypt');
+const { JWT_OWNER } = require('../config/config');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const ownerModel = require("../models/owner-model");
 
 const owner = zod.object({
@@ -38,7 +41,7 @@ if (process.env.NODE_ENV === "development") {
                 res.status(504).send("Owner already exits you cannot create the owner");
             }
             else {
-                const hashedPassword = await bcrypt.hash(password,5);
+                const hashedPassword = await bcrypt.hash(password, 5);
                 const owners = await ownerModel.create({
                     email,
                     fullname,
@@ -51,6 +54,45 @@ if (process.env.NODE_ENV === "development") {
     } catch (err) {
         res.status(500).send("Internal server Error");
     }
+
+    ownerRoute.post('/signin', async (req, res) => {
+        try {
+            const { email, password } = req.body;
+
+            const owner = await ownerModel.findOne({
+                email
+            });
+
+            if (!owner) {
+                res.send("User not found");
+            }
+            const passwordMatch = await bcrypt.compare(password, owner.password);
+
+            if (!passwordMatch) {
+                res.send("Incorrect creds");
+            }
+
+            const token = await jwt.sign({
+                id: owner._id
+            }, JWT_OWNER, { expiresIn: "1h" });
+
+            res.cookie("token", token, {
+                httpOnly: true, // Prevents access from client-side scripts
+                secure: process.env.NODE_ENV === "development",
+                maxAge: 60 * 60 * 1000,
+            })
+
+            res.status(200).json({
+                message: "Signin successful"
+            })
+
+        } catch (error) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    })
+
+
 }
+
 
 module.exports = ownerRoute;

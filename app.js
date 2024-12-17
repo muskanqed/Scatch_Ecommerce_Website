@@ -11,12 +11,12 @@ const indexRoute = require("./routes/index")
 const app = express();
 const port = process.env.PORT;
 
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Frontend
 app.set('view engine', 'ejs');
-app.set('views','./views');
+app.set('views', './views');
 
 
 app.use('/owner', ownerRoute);
