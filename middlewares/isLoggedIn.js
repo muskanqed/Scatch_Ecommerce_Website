@@ -4,41 +4,52 @@ const userModel = require("../models/user-model");
 const ownerModel = require("../models/owner-model");
 
 async function isLoggedInOwner(req, res, next) {
-  if (!req.cookie.token) {
-    req.flash("error", "You are not loggedin");
+  if (!req.cookies.token) {
+    req.flash("error", "You are not logged in as owner");
     return res.redirect("/");
   }
 
   try {
-    decoded = jwt.verify(req.cookie.token, JWT_OWNER);
+    const decoded = jwt.verify(req.cookies.token, JWT_OWNER);
     const owner = await ownerModel.findOne({
-      id: decode._id,
+      _id: decoded.id,
     });
 
+    if (!owner) {
+      req.flash("error", "Owner not found");
+      return res.redirect("/");
+    }
+
     req.owner = owner;
-    next();
   } catch (err) {
-    res.status(500).send("Something went wrong");
+    console.error(err);
+    req.flash("error", "Invalid or expired token");
     res.redirect("/");
   }
 }
 
 async function isLoggedInUser(req, res, next) {
-  if (!req.cookie.token) {
-    req.flash("error", "You are not loggedin");
+  if (!req.cookies.token) {
+    req.flash("error", "You are not logged in as user");
     return res.redirect("/");
   }
 
   try {
-    decoded = jwt.verify(req.cookie.token, JWT_USER);
+    const decoded = jwt.verify(req.cookies.token, JWT_USER);
     const user = await userModel.findOne({
-      id: decode._id,
-    });
+      _id: decoded.id,
+    }).select("-password");
 
-    req.user = user;
+    if (!user) {
+      req.flash("error", "User not found");
+      return res.redirect("/");
+    }
+
+    req.user = user; 
     next();
   } catch (err) {
-    res.status(500).send("Somthing went wrong");
+    console.error(err);
+    req.flash("error", "Invalid or expired token");
     res.redirect("/");
   }
 }

@@ -18,14 +18,14 @@ userRoute.get("/", async (req, res) => {
   res.send(users);
 });
 
-userRoute.post("/signup", async (req, res) => {
+userRoute.post("/register", async (req, res) => {
   try {
     const { email, fullname, password } = req.body;
 
     const parseResult = user.safeParse({ email, fullname, password });
 
     if (!parseResult.success) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Invaild inputs",
         error: parseResult.error.errors,
       });
@@ -33,7 +33,7 @@ userRoute.post("/signup", async (req, res) => {
     const userExits = await userModel.findOne({ email });
 
     if (userExits) {
-      res.status(409).send("User already exits please signin");
+      return res.status(409).send("User already exits please signin");
     } else {
       hashedPassword = await bcrypt.hash(password, 5);
 
@@ -48,18 +48,18 @@ userRoute.post("/signup", async (req, res) => {
       });
     }
   } catch (err) {
-    res.status(500).send("Internal server Error");
+    return res.status(500).send("Internal server Error");
   }
 });
 
-userRoute.post("/signin", async (req, res) => {
+userRoute.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await userModel.findOne({ email });
 
     if (!user) {
-      res.status(401).send("User not found, please register yourself");
+      return res.status(401).send("User not found, please register yourself");
     }
 
     passwordMatch = await bcrypt.compare(password, user.password);
@@ -73,10 +73,15 @@ userRoute.post("/signin", async (req, res) => {
       maxAge: 60 * 60 * 1000,
     });
 
-    res.status(200).send("signin successful");
+    res.redirect("/shop");
   } catch (err) {
-    res.status(500).send("Internal server Error", err);
+    return res.status(500).send("Internal server Error", err);
   }
 });
+
+userRoute.get('/logout',(req,res)=>{
+  res.cookie("token","");
+  res.redirect('/');
+})
 
 module.exports = userRoute;
