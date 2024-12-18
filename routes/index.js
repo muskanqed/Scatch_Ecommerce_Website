@@ -11,8 +11,8 @@ router.get("/", (req, res) => {
 
 router.get("/shop", isLoggedInUser, async (req, res) => {
   try {
-    const products = await productModel.find();  // Replace ProductModel with your actual model
-    res.render('shop', { products });  // Pass products as an object to the view
+    const products = await productModel.find();
+    res.render('shop', { products });
   } catch (err) {
     res.status(500).send('Error retrieving products');
     console.log(err);

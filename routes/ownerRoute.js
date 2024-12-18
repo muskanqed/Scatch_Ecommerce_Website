@@ -88,4 +88,9 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
+ownerRoute.get('/admin',async (req,res)=>{
+  const success = req.flash("success");
+  res.render("createproducts", { success});
+})
+
 module.exports = ownerRoute;
