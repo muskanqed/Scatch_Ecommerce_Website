@@ -6,7 +6,7 @@ const productModel = require('../models/product-model');
 router.get("/", (req, res) => {
   const error = req.flash("error");
 
-  res.render("index", { error });
+  res.render("index", { error, loggedin: false });
 });
 
 router.get("/shop", isLoggedInUser, async (req, res) => {
