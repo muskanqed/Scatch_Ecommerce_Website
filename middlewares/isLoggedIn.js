@@ -36,16 +36,18 @@ async function isLoggedInUser(req, res, next) {
 
   try {
     const decoded = jwt.verify(req.cookies.token, JWT_USER);
-    const user = await userModel.findOne({
-      _id: decoded.id,
-    }).select("-password");
+    const user = await userModel
+      .findOne({
+        _id: decoded.id,
+      })
+      .select("-password");
 
     if (!user) {
       req.flash("error", "User not found");
       return res.redirect("/");
     }
 
-    req.user = user; 
+    req.user = user;
     next();
   } catch (err) {
     console.error(err);

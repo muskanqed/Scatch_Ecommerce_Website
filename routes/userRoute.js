@@ -79,9 +79,9 @@ userRoute.post("/login", async (req, res) => {
   }
 });
 
-userRoute.get('/logout',(req,res)=>{
-  res.cookie("token","");
-  res.redirect('/');
-})
+userRoute.get("/logout", (req, res) => {
+  res.cookie("token", "");
+  res.redirect("/");
+});
 
 module.exports = userRoute;
